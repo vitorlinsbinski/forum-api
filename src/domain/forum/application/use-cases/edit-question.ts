@@ -1,19 +1,26 @@
+import { Question } from '../../enterprise/entities/question';
 import { QuestionsRepository } from '../repositories/questions-repository';
 
-interface DeleteQuestionRequest {
+interface EditQuestionRequest {
   authorId: string;
   questionId: string;
+  title: string;
+  content: string;
 }
 
-interface DeleteQuestionResponse {}
+interface EditQuestionResponse {
+  question: Question;
+}
 
-export class DeleteQuestion {
+export class EditQuestion {
   constructor(private questionsRepository: QuestionsRepository) {}
 
   async execute({
     authorId,
     questionId,
-  }: DeleteQuestionRequest): Promise<DeleteQuestionResponse> {
+    title,
+    content,
+  }: EditQuestionRequest): Promise<EditQuestionResponse> {
     const question = await this.questionsRepository.findById(questionId);
 
     if (!question) {
@@ -24,8 +31,11 @@ export class DeleteQuestion {
       throw new Error('Not allowed.');
     }
 
-    await this.questionsRepository.delete(question);
+    question.title = title;
+    question.content = content;
 
-    return {};
+    await this.questionsRepository.save(question);
+
+    return { question };
   }
 }
