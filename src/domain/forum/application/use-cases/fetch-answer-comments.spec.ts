@@ -1,5 +1,4 @@
 import { FetchAnswerCommentsUseCase } from './fetch-answer-comments';
-import { makeAnswer } from 'test/factories/make-answer';
 import { UniqueEntityId } from '@/core/entities/unique-entity-id';
 import { InMemoryAnswerCommentsRepository } from 'test/repositories/in-memory-answer-comments-repository';
 import { makeAnswerComment } from 'test/factories/make-answer-comment';
@@ -24,12 +23,12 @@ describe('Fetch Answer Comments', () => {
       makeAnswerComment({ answerId: new UniqueEntityId('answer-1') })
     );
 
-    const { answerComments } = await sut.execute({
+    const result = await sut.execute({
       answerId: 'answer-1',
       page: 1,
     });
 
-    expect(answerComments).toHaveLength(3);
+    expect(result.value?.answerComments).toHaveLength(3);
   });
 
   it.skip('should be able to fetch paginated answer comments', async () => {
@@ -39,11 +38,11 @@ describe('Fetch Answer Comments', () => {
       );
     }
 
-    const { answerComments } = await sut.execute({
+    const result = await sut.execute({
       answerId: 'answer-1',
       page: 2,
     });
 
-    expect(answerComments).toHaveLength(2);
+    expect(result.value?.answerComments).toHaveLength(2);
   });
 });

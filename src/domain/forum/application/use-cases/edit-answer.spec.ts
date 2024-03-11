@@ -1,15 +1,16 @@
 import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-repository';
 import { makeAnswer } from 'test/factories/make-answer';
-import { EditAnswer } from './edit-answer';
+import { EditAnswerUseCase } from './edit-answer';
 import { UniqueEntityId } from '@/core/entities/unique-entity-id';
+import { NotAllowedError } from './errors/not-allowed-error';
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository;
-let sut: EditAnswer;
+let sut: EditAnswerUseCase;
 
 describe('Edit Answer', () => {
   beforeEach(() => {
     inMemoryAnswersRepository = new InMemoryAnswersRepository();
-    sut = new EditAnswer(inMemoryAnswersRepository);
+    sut = new EditAnswerUseCase(inMemoryAnswersRepository);
   });
 
   it('should be able to edit an answer', async () => {
@@ -39,12 +40,13 @@ describe('Edit Answer', () => {
 
     await inMemoryAnswersRepository.create(newAnswer);
 
-    await expect(() =>
-      sut.execute({
-        authorId: 'author-2',
-        content: 'Conteúdo teste',
-        answerId: newAnswer.id.toValue(),
-      })
-    ).rejects.toBeInstanceOf(Error);
+    const result = await sut.execute({
+      authorId: 'author-2',
+      content: 'Conteúdo teste',
+      answerId: newAnswer.id.toValue(),
+    });
+
+    expect(result.isLeft()).toBe(true);
+    expect(result.value).toBeInstanceOf(NotAllowedError);
   });
 });
